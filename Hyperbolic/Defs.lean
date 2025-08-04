@@ -75,12 +75,11 @@ lemma non_zero_pair (x : V × (V →ₗ[k] k)) (ε : k) (hε : ε ≠ 0) (h : x 
   by_cases hv : v = 0
   case pos => 
     have : φ ≠ 0 := by aesop
-    have : ∃w, φ w ≠ 0 := by
+    obtain ⟨w,hw⟩ : ∃w, φ w ≠ 0 := by
       contrapose this
       push_neg at *
       ext v
       apply this    
-    rcases this with ⟨w,hw⟩
     use ⟨w,0⟩
     simp
     exact ⟨hε,hw⟩     
