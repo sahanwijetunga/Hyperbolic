@@ -57,9 +57,9 @@ theorem hyperbolic_is_alt_of_minus1 (k V : Type) [Field k] [AddCommGroup V] [Mod
   simp
 
 
-lemma exists_functional_nezero_on_nezero (k V : Type) [Field k] [AddCommGroup V] [Module k V]
+lemma exists_functional_nezero (k V : Type) [Field k] [AddCommGroup V] [Module k V]
     (v : V) (hv : v ≠ 0) :
-  ∃ ψ:V →ₗ[k] k, ψ v ≠ 0 := by
+    ∃ ψ:V →ₗ[k] k, ψ v ≠ 0 := by
   contrapose hv
   push_neg at *
   have l : v = 0 := (Module.forall_dual_apply_eq_zero_iff k v).mp hv
@@ -70,7 +70,7 @@ is a vector `y` in `V × (V →ₗ[k] k)` for which
 `HyperbolicForm k V ε x y ≠ 0`
 -/
 lemma non_zero_pair (x : V × (V →ₗ[k] k)) (ε : k) (hε : ε ≠ 0) (h : x ≠ 0) :
-      ∃ y, (HyperbolicForm k V ε) x y ≠ 0 := by 
+    ∃ y, (HyperbolicForm k V ε) x y ≠ 0 := by 
   rcases x with ⟨v,φ⟩
   by_cases hv : v = 0
   case pos => 
@@ -85,7 +85,7 @@ lemma non_zero_pair (x : V × (V →ₗ[k] k)) (ε : k) (hε : ε ≠ 0) (h : x 
     simp
     exact ⟨hε,hw⟩     
   case neg =>
-    rcases (exists_functional_nezero_on_nezero k V v hv) with ⟨ψ,hψ⟩
+    rcases (exists_functional_nezero k V v hv) with ⟨ψ,hψ⟩
     use ⟨0,ψ⟩
     simp; assumption
           
@@ -96,10 +96,11 @@ theorem dual_pairing_nondeg (k V : Type) [Field k] [AddCommGroup V]
   constructor
   case left => 
     intro v hv
-    by_contra hvz
-    rcases (exists_functional_nezero_on_nezero k V v hvz) with ⟨ψ,hψ⟩ 
-    have : ψ v = 0 :=  (hv ψ)
-    exact hψ this
+    contrapose hv
+    push_neg
+    rcases (exists_functional_nezero k V v hv) with ⟨ψ,hψ⟩ 
+    use ψ
+    exact hψ
   case right => 
     intro φ hφ
     ext v
@@ -124,8 +125,7 @@ indexed by a type `ι ⊕ ι` with the properties
 - `β (b (Sum.inl i)) (b (Sum.inr j)) = δ_{i,j}` for every `i j`
 - `β (b (Sum.inl i)) (b (Sum.inr j)) = ε * δ_{i,j}` for every `i j`
 -/
-
-structure HyperbolicBasis' (k W : Type) [Field k] [AddCommGroup W] [Module k W]
+structure HyperbolicBasis (k W : Type) [Field k] [AddCommGroup W] [Module k W]
   (ε : k) (β : BilinForm k W) (ι : Type) [DecidableEq ι] where
   carrier : Basis (ι ⊕ ι) k W
   cond_ll : ∀ i j, β (carrier (Sum.inl i)) (carrier (Sum.inl j)) = 0
@@ -140,7 +140,7 @@ with `HyperbolicForm k V ε`.
 noncomputable
 def HyperbolicBasisOfHyperbolicForm (ε : k)
    (ι : Type) [Finite ι] [DecidableEq ι] (b : Basis ι k V) :
-  HyperbolicBasis' k (V × (V →ₗ[k] k)) ε (HyperbolicForm k V ε) ι where
+  HyperbolicBasis k (V × (V →ₗ[k] k)) ε (HyperbolicForm k V ε) ι where
     carrier := Basis.prod b (Basis.dualBasis b)
     cond_ll := by simp
     cond_rr := by simp
